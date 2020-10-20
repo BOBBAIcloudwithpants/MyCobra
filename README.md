@@ -1,2 +1,2 @@
-# MyCobra
-A simple 'Cobra' package imitating Cobra in golang
+# bobra
+A simple 'cobra' package imitating Cobra in golang
