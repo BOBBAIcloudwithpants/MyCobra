@@ -1,10 +1,22 @@
 package bobra
 
 import (
+	"io"
 	"strings"
+	"text/template"
+	"fmt"
 	flag "github.com/spf13/pflag"
+	"unicode"
 )
-
+var templateFuncs = template.FuncMap{
+	"trim":                    strings.TrimSpace,
+	//"trimRightSpace":          trimRightSpace,
+	"trimTrailingWhitespaces": trimRightSpace,
+	//"appendIfNotPresent":      appendIfNotPresent,
+	"rpad":                    rpad,
+	//"gt":                      Gt,
+	//"eq":                      Eq,
+}
 // 从 args 中解析出子命令的列表
 func stripFlags(args []string, c *Command) []string {
 	if len(args) == 0 {
@@ -76,4 +88,21 @@ func removeFirstMatchStr(args []string, str string) []string {
 		}
 	}
 	return args
+}
+
+func tmpl(w io.Writer, text string, data interface{}) error {
+	t := template.New("top")
+	t.Funcs(templateFuncs)
+	template.Must(t.Parse(text))
+	return t.Execute(w, data)
+}
+
+// rpad adds padding to the right of a string.
+func rpad(s string, padding int) string {
+	template := fmt.Sprintf("%%-%ds", padding)
+	return fmt.Sprintf(template, s)
+}
+
+func trimRightSpace(s string) string {
+	return strings.TrimRightFunc(s, unicode.IsSpace)
 }
