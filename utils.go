@@ -4,20 +4,12 @@ import (
 	"io"
 	"strings"
 	"text/template"
-	"fmt"
 	flag "github.com/spf13/pflag"
-	"unicode"
 )
 var templateFuncs = template.FuncMap{
 	"trim":                    strings.TrimSpace,
-	//"trimRightSpace":          trimRightSpace,
-	"trimTrailingWhitespaces": trimRightSpace,
-	//"appendIfNotPresent":      appendIfNotPresent,
-	"rpad":                    rpad,
-	//"gt":                      Gt,
-	//"eq":                      Eq,
 }
-// 从 args 中解析出子命令的列表
+// 从 args 中解析出子命令的列表 ------ copy from github.com/spf13/cobra
 func stripFlags(args []string, c *Command) []string {
 	if len(args) == 0 {
 		return args
@@ -25,7 +17,6 @@ func stripFlags(args []string, c *Command) []string {
 
 	commands := []string{}
 	flags := c.Flags()
-
 Loop:
 	for len(args) > 0 {
 		s := args[0]
@@ -82,7 +73,7 @@ func removeFirstMatchStr(args []string, str string) []string {
 	for i, arg := range args {
 		if arg == str {
 			ret := []string{}
-			ret = append(ret, args[:]...)
+			ret = append(ret, args[:i]...)
 			ret = append(ret, args[i+1:]...)
 			return ret
 		}
@@ -90,19 +81,10 @@ func removeFirstMatchStr(args []string, str string) []string {
 	return args
 }
 
-func tmpl(w io.Writer, text string, data interface{}) error {
-	t := template.New("top")
+// 将命令的的使用方式加载到模版中
+func templify(w io.Writer, text string, data interface{}) error {
+	t := template.New("usage")
 	t.Funcs(templateFuncs)
 	template.Must(t.Parse(text))
 	return t.Execute(w, data)
-}
-
-// rpad adds padding to the right of a string.
-func rpad(s string, padding int) string {
-	template := fmt.Sprintf("%%-%ds", padding)
-	return fmt.Sprintf(template, s)
-}
-
-func trimRightSpace(s string) string {
-	return strings.TrimRightFunc(s, unicode.IsSpace)
 }

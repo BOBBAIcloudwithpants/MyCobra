@@ -35,38 +35,13 @@ type Command struct {
 	// 父命令的指针
 	parent *Command
 
-	// Max lengths of commands' string lengths for use in padding.
-	commandsMaxUseLen         int
-	commandsMaxCommandPathLen int
-	commandsMaxNameLen        int
-
-
 	// 运行这个命令执行的函数
 	Run func(cmd *Command, args []string)
+
 
 	usageFunc func(*Command) error
 
 }
-
-//// 为指令设置helpCommand
-//func (c *Command) SetHelpCommand(cmd *Command) {
-//	c.helpCommand = cmd
-//}
-
-//// 初始化默认的 helpCommand, 如果 c 没有任何子命令或者 c 已经有设置好的helpCommand, 则不设置
-//func (c *Command) SetDefaultHelpCmd() {
-//	if !c.HasSubCommands() || c.helpCommand != nil{
-//		return
-//	}
-//
-//	usePath := c.UsePath()
-//	c.helpCommand = &Command{
-//		Use: usePath + " [command]",
-//		Short: "Help about the usage of several subcommands",
-//		Long: "Help you to have ideas of how to use subcommands to satisfy your demands"
-//
-//	}
-//}
 
 
 // 将args参数转换为flags参数
@@ -124,6 +99,7 @@ func (c *Command) Execute()  {
 	}
 }
 
+// 设置全局可用的flags
 func (c *Command) SetGlobalFlags(flags *flag.FlagSet) {
 	c.globalflags = flags
 }
@@ -143,13 +119,12 @@ func (c *Command) GlobalFlags() *flag.FlagSet {
 	return c.globalflags
 }
 
-
+// 继承了全局的flags
 func (c *Command) inheritGlobalFlags() {
 	// 如果为根命令，终止
 	if c.Parent() == nil {
 		return
 	}
-
 	// 否则继承父亲的globalflags, 一个指令集下应当维护一个全局唯一的globalflags指针
 	c.globalflags = c.Parent().GlobalFlags()
 }
@@ -166,14 +141,6 @@ func (c *Command) LocalFlags() *flag.FlagSet {
 		c.localflags.SetOutput(c.flagErrorBuf)
 	}
 
-	//addToLocal := func(f *flag.Flag) {
-	//	if c.localflags.Lookup(f.Name) == nil && c.globalflags.Lookup(f.Name) == nil {
-	//		c.localflags.AddFlag(f)
-	//	}
-	//}
-	//c.Flags().VisitAll(addToLocal)
-	//c.GlobalFlags().VisitAll(addToLocal)
-	//c.Flags().AddFlagSet(c.localflags)
 	return c.localflags
 }
 
@@ -200,11 +167,6 @@ func (c *Command) AddCommand(cmds ...*Command) {
 	for i, x := range cmds {
 		if cmds[i] == c {
 			panic("Command can't be a child of itself")
-		}
-
-		nameLen := len(x.Name())
-		if nameLen > c.commandsMaxNameLen {
-			c.commandsMaxNameLen = nameLen
 		}
 		cmds[i].parent = c
 		c.commands = append(c.commands, x)
@@ -233,6 +195,7 @@ func innerFind(cmd *Command, innerArgs []string)(*Command, []string, error) {
 	if subCmd == nil {
 		return cmd, nil, ObjectNotFound{Type: "Command", Name: sub}
 	}
+
 	return innerFind(subCmd, innerArgs[1:])
 }
 
@@ -311,12 +274,12 @@ func (c *Command) findSubCmd(cmdUse string) *Command {
 	return nil
 }
 
+// 根据是否存在 Run 函数指针来判断这个命令能否运行
 func (c *Command) Runnable() bool {
 	return c.Run != nil
 }
 
-
-
+// 判断该命令是否有效
 func (c *Command) IsAvailable() bool {
 	if c.Runnable() || c.HasAvailableSubCmds() {
 		return true
@@ -324,6 +287,7 @@ func (c *Command) IsAvailable() bool {
 	return false
 }
 
+// 判断该命令是否有有效的子命令
 func (c *Command) HasAvailableSubCmds() bool {
 	for _, sub := range c.commands {
 		if sub.IsAvailable() {
@@ -346,30 +310,24 @@ func (c *Command) HasParent() bool{
 	return false
 }
 
+// 判断命令是否存在有效的flags
 func (c *Command) HasAvailableFlags() bool {
+	c.inheritGlobalFlags()
 	return c.Flags().HasAvailableFlags()
 }
 
+// 判断命令是否存在全局有效的flags
 func (c *Command) HasAvailableGlobalFlags() bool {
+	c.inheritGlobalFlags()
 	return c.GlobalFlags().HasAvailableFlags()
 }
 
+// 判断命令是否存在局部有效的flags
 func (c *Command) HasAvailableLocalFlags() bool {
 	return c.LocalFlags().HasAvailableFlags()
 }
 
-
 //
-//var minNamePadding = 11
-//
-//// NamePadding returns padding for the name.
-//func (c *Command) NamePadding() int {
-//	if c.parent == nil || minNamePadding > c.parent.commandsMaxNameLen {
-//		return minNamePadding
-//	}
-//	return c.parent.commandsMaxNameLen
-//}
-
 func (c *Command) Usage() error {
 	return c.UsageFunc()(c)
 }
@@ -383,7 +341,7 @@ func (c *Command) UsageFunc() (f func(*Command) error) {
 	}
 	return func(c *Command) error {
 		c.inheritGlobalFlags()
-		err := tmpl(os.Stdout, c.UsageTemplate(), c)
+		err := templify(os.Stdout, c.UsageTemplate(), c)
 		if err != nil {
 			LogError(err)
 		}
@@ -416,27 +374,5 @@ GlobalFlags:
   {{.GlobalFlags.FlagUsages}}
 {{end}} {{if .HasAvailableSubCmds}}
 Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
-
 `
 }
-
-
-//`Usage:{{if .Runnable}}
-//  {{.UseLine}}{{end}}{{if .HasAvailableSubCmds}}
-//  {{.CommandPath}} [command]{{end}}
-//
-//Examples:
-//{{.Example}}{{end}}{{if .HasAvailableSubCmds}}
-//
-//Available Commands:{{range .Commands}}{{if .IsAvailable}}
-//  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
-//
-//Local Flags:
-//{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableGlobalFlags}}
-//
-//Global Flags:
-//{{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableSubCmds}}
-//
-//Use "{{.CommandPath}} [command] --help" for more information about a command.{{end}}
-//`
-//
