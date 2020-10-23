@@ -8,6 +8,10 @@ bobra 是一个模仿了 [github.com/spf13/cobra]("https://github.com/spf13/cobr
 - 支持定义多个子命令
 - 默认生成命令的介绍，也支持命令介绍的自定义
 
+## 文档链接
+- API文档: https://github.com/BOBBAIcloudwithpants/bobra/wiki/Bobra-API-Document
+- 设计文档: https://github.com/BOBBAIcloudwithpants/bobra/blob/main/specification.md
+
 ## 环境以及获取方式
 - golang 版本: golang 1.14及以上
 - 操作系统: mac/linux
