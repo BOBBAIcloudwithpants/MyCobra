@@ -1,7 +1,7 @@
 # Bobra
 
 ## 简介
-bobra 是一个模仿了 github.com/spf13/cobra 的包，bobra 中实现了精简版的 cobra 的功能, 使得命令行程序开发者能够快速的建立耦合度低，高度模块化的命令行程序。
+bobra 是一个模仿了 [github.com/spf13/cobra]("https://github.com/spf13/cobra.git") 的包，bobra 中实现了精简版的 cobra 的功能, 使得命令行程序开发者能够快速的建立耦合度低，高度模块化的命令行程序。
 
 ## 功能
 - 快速定义命令行程序
@@ -20,6 +20,7 @@ go get github.com/bobbaicloudwithpants/bobra
 该使用示例的代码全部都可以在 [resume 仓库]("https://github.com/BOBBAIcloudwithpants/resume.git") 中获取。    
 假设您此时要开发一款命令行的 app，通过命令行来按照需求输出您的学历以及个人信息，即:
 ```
+resume          // 显示resume的用法
 resume name     // 显示姓名
 resume edu -p   // 显示小学
 resume edu -m   // 显示中学
@@ -123,4 +124,14 @@ func init(){
 	resume.AddCommand(edu)
 }
 ```
+
+项目完成以后，执行 `go install`, 并在终端执行操作，得到的结果如下:     
+1. resume
+![](https://tva1.sinaimg.cn/large/0081Kckwgy1gjz14jqmhlj31ak0dydhj.jpg)
+
+2. resume name
+![](https://tva1.sinaimg.cn/large/0081Kckwgy1gjz15pxjtaj30t002ct8u.jpg)
+
+3. resume edu -c
+![](https://tva1.sinaimg.cn/large/0081Kckwgy1gjz16phf6jj30su0220sv.jpg)
 
