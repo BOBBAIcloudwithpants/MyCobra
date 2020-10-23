@@ -7,9 +7,10 @@ import (
 )
 
 var(
+	// 当找到 "help" 等命令行参数时抛出
 	FoundHelp = errors.New("Found Help")
 )
-// 两个自定义异常
+// 当命令没有找到时抛出
 type ObjectNotFound struct {
 	Type string
 	Name string

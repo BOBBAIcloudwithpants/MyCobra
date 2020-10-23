@@ -1,3 +1,7 @@
+/*
+bobra 是一个模仿了 github.com/spf13/cobra 的包。
+bobra 中实现了精简版的 cobra 的功能, 使得命令行程序开发者能够快速的建立耦合度低，高度模块化的命令行程序。
+*/
 package bobra
 
 import (
@@ -5,7 +9,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-
 	flag "github.com/spf13/pflag"
 )
 
@@ -337,7 +340,7 @@ func (c *Command) Usage() error {
 	return c.UsageFunc()(c)
 }
 
-
+// 返回能够用于输出【使用方法】的函数
 func (c *Command) UsageFunc() (f func(*Command) error) {
 	if c.usageFunc != nil {
 		return c.usageFunc

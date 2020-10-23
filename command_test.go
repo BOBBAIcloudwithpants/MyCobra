@@ -1,6 +1,10 @@
 package bobra
 
-import "testing"
+import (
+	"fmt"
+	"os"
+	"testing"
+)
 
 var cmd = &Command{
 	Use: "test",
@@ -15,6 +19,8 @@ var root = &Command{
 	Long: "root test",
 	Example: "root test",
 }
+
+
 
 // 测试args到flags的转换
 func TestCommand_ParseFlags(t *testing.T) {
@@ -86,4 +92,76 @@ func TestCommand_CommandPath(t *testing.T) {
 		t.Errorf("expected '%s', but got '%s'", expected,r)
 	}
 }
+
+func ExampleCommand_AddCommand() {
+	// 子命令
+	var s1 = &Command{
+		Use: "test",
+		Short: "test",
+		Long: "test",
+		Example: "test",
+	}
+
+	// 根命令
+	var r = &Command{
+		Use: "root",
+		Short: "root",
+		Long: "root test",
+		Example: "root test",
+	}
+	r.AddCommand(s1)
+	fmt.Println(r.findSubCmd("test").Name())
+	// Output: test
+}
+
+func ExampleCommand_Execute() {
+	// 子命令
+	var s1 = &Command{
+		Use: "test",
+		Short: "test",
+		Long: "test",
+		Example: "test",
+		Run: func(cmd *Command, args []string) {
+			fmt.Println("i 'm the sub command")
+		},
+	}
+
+	// 根命令
+	var r = &Command{
+		Use: "root",
+		Short: "root",
+		Long: "root test",
+		Example: "root test",
+		Run: func(cmd *Command, args []string) {
+			fmt.Println("helloworld")
+		},
+	}
+	r.AddCommand(s1)
+	os.Args = []string{"root", "test"}
+	r.Execute()
+	// Output: i 'm the sub command
+}
+
+func ExampleCommand_CommandPath() {
+	// 子命令
+	var s1 = &Command{
+		Use: "test",
+		Short: "test",
+		Long: "test",
+		Example: "test",
+	}
+
+	// 根命令
+	var r = &Command{
+		Use: "root",
+		Short: "root",
+		Long: "root test",
+		Example: "root test",
+	}
+	r.AddCommand(s1)
+	fmt.Println(s1.CommandPath())
+	// Output: root test
+}
+
+
 
