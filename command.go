@@ -74,8 +74,13 @@ func (c *Command) execute(a []string) error {
 func (c *Command) ExecuteC() (err error) {
 	args := os.Args
 	cmd, flags, err := c.Find(args)
+	if err == FoundHelp {
+		cmd.Usage()
+		return nil
+	}
 
 	if err != nil {
+		LogError(err)
 		return err
 	}
 	return cmd.execute(flags)
@@ -92,6 +97,7 @@ func (c *Command) Execute() error {
 	if err != nil {
 		return err
 	}
+	return nil
 }
 
 // 设置全局可用的flags
@@ -176,6 +182,10 @@ func innerFind(cmd *Command, innerArgs []string) (*Command, []string, error) {
 
 	innerArgsWithoutFlags := stripFlags(innerArgs[1:], cmd)
 
+	// 如果发现有help输入，则不向下继续执行子命令，而是输出usage信息
+	if len(innerArgsWithoutFlags) > 0 && innerArgsWithoutFlags[0] == "help" {
+		return cmd, nil, FoundHelp
+	}
 	// 如果此时已经没有向下的子命令了
 	if len(innerArgsWithoutFlags) == 0 {
 		return cmd, innerArgs[1:], nil
@@ -194,6 +204,9 @@ func innerFind(cmd *Command, innerArgs []string) (*Command, []string, error) {
 // 从参数中找到要执行的子命令, 如果没有子命令则返回这个命令本身，如果找不到则返回错误
 func (c *Command) Find(args []string) (*Command, []string, error) {
 	cmd, flags, err := innerFind(c, args)
+	if err == FoundHelp {
+		return cmd, []string{}, FoundHelp
+	}
 	if err != nil {
 		return cmd, flags, err
 	}
@@ -215,6 +228,7 @@ func (c *Command) LongIntroduction() string {
 	return c.Long
 }
 
+// 返回这条命令的简短介绍，会返回在命令Usage的子命令列表中
 func (c *Command) ShortIntroduction() string {
 	return c.Short
 }
@@ -318,10 +332,11 @@ func (c *Command) HasAvailableLocalFlags() bool {
 	return c.LocalFlags().HasAvailableFlags()
 }
 
-//
+// 显示命令的使用方法
 func (c *Command) Usage() error {
 	return c.UsageFunc()(c)
 }
+
 
 func (c *Command) UsageFunc() (f func(*Command) error) {
 	if c.usageFunc != nil {

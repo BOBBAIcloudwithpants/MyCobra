@@ -1,10 +1,14 @@
 package bobra
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
 
+var(
+	FoundHelp = errors.New("Found Help")
+)
 // 两个自定义异常
 type ObjectNotFound struct {
 	Type string
