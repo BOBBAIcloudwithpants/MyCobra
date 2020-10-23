@@ -3,11 +3,11 @@ package bobra
 import (
 	"bytes"
 	"fmt"
-	flag "github.com/spf13/pflag"
 	"os"
 	"strings"
-)
 
+	flag "github.com/spf13/pflag"
+)
 
 type Command struct {
 	// 命令的使用名称
@@ -23,7 +23,7 @@ type Command struct {
 	// 这个命令集合对应的全部全局可用的flag
 	globalflags *flag.FlagSet
 	// 这个命令集合对应的局部可用的flag，即仅当前命令可以使用的flag
-	localflags  *flag.FlagSet
+	localflags *flag.FlagSet
 
 	// 存放FlagSet错误输出的缓冲区
 	flagErrorBuf *bytes.Buffer
@@ -38,14 +38,12 @@ type Command struct {
 	// 运行这个命令执行的函数
 	Run func(cmd *Command, args []string)
 
-
+	// 该 Command 的使用方法介绍
 	usageFunc func(*Command) error
-
 }
 
-
 // 将args参数转换为flags参数
-func (c *Command) ParseFlags(args []string) error{
+func (c *Command) ParseFlags(args []string) error {
 
 	if c.flagErrorBuf == nil {
 		c.flagErrorBuf = new(bytes.Buffer)
@@ -55,13 +53,11 @@ func (c *Command) ParseFlags(args []string) error{
 
 	c.inheritGlobalFlags()
 	err := c.Flags().Parse(args)
-	if c.flagErrorBuf.Len() - beforeBufferLen > 0 && err == nil {
+	if c.flagErrorBuf.Len()-beforeBufferLen > 0 && err == nil {
 		fmt.Println(c.flagErrorBuf.String())
 	}
 	return err
 }
-
-
 
 // 根据flag参数执行该命令
 func (c *Command) execute(a []string) error {
@@ -91,10 +87,10 @@ func (c *Command) Parent() *Command {
 }
 
 // 执行命令，调用链为：Execute--->ExecuteC--->execute
-func (c *Command) Execute()  {
+func (c *Command) Execute() error {
 	err := c.ExecuteC()
 	if err != nil {
-		panic(err)
+		return err
 	}
 }
 
@@ -143,7 +139,6 @@ func (c *Command) LocalFlags() *flag.FlagSet {
 	return c.localflags
 }
 
-
 // 返回命令的参数列表, 如果 flags 为空则初始化这个flag
 func (c *Command) Flags() *flag.FlagSet {
 	c.inheritGlobalFlags()
@@ -160,7 +155,6 @@ func (c *Command) Flags() *flag.FlagSet {
 	return c.flags
 }
 
-
 // 添加子命令
 func (c *Command) AddCommand(cmds ...*Command) {
 	for i, x := range cmds {
@@ -173,8 +167,7 @@ func (c *Command) AddCommand(cmds ...*Command) {
 }
 
 // 递归寻找下一个要执行的子命令，如果找不到则抛出异常
-func innerFind(cmd *Command, innerArgs []string)(*Command, []string, error) {
-
+func innerFind(cmd *Command, innerArgs []string) (*Command, []string, error) {
 
 	// 参数列表中的第一个一定与cmd的 Name 相同
 	if innerArgs[0] != cmd.Name() {
@@ -199,8 +192,8 @@ func innerFind(cmd *Command, innerArgs []string)(*Command, []string, error) {
 }
 
 // 从参数中找到要执行的子命令, 如果没有子命令则返回这个命令本身，如果找不到则返回错误
-func (c *Command) Find(args []string) (*Command,[]string , error) {
-	cmd , flags, err := innerFind(c, args)
+func (c *Command) Find(args []string) (*Command, []string, error) {
+	cmd, flags, err := innerFind(c, args)
 	if err != nil {
 		return cmd, flags, err
 	}
@@ -208,7 +201,7 @@ func (c *Command) Find(args []string) (*Command,[]string , error) {
 }
 
 // 返回命令的名字
-func (c* Command) Name() string {
+func (c *Command) Name() string {
 	name := c.Use
 	i := strings.Index(name, " ")
 	if i >= 0 {
@@ -221,7 +214,6 @@ func (c* Command) Name() string {
 func (c *Command) LongIntroduction() string {
 	return c.Long
 }
-
 
 func (c *Command) ShortIntroduction() string {
 	return c.Short
@@ -302,7 +294,7 @@ func (c *Command) HasSubCommands() bool {
 }
 
 // 判断 c 是否有父命令
-func (c *Command) HasParent() bool{
+func (c *Command) HasParent() bool {
 	if c.parent != nil {
 		return true
 	}
