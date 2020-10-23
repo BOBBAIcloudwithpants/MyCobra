@@ -143,12 +143,21 @@ func ExampleCommand_Execute() {
 }
 
 func ExampleCommand_CommandPath() {
-	// 子命令
+	// 子命令1
 	var s1 = &Command{
 		Use: "test",
 		Short: "test",
 		Long: "test",
 		Example: "test",
+	}
+
+	var s2 = &Command{
+		Use: "subtest",
+		Short: "subtest",
+		Long: "subtest",
+		Run: func(cmd *Command, args []string) {
+			fmt.Println("this is a test")
+		},
 	}
 
 	// 根命令
@@ -159,8 +168,9 @@ func ExampleCommand_CommandPath() {
 		Example: "root test",
 	}
 	r.AddCommand(s1)
-	fmt.Println(s1.CommandPath())
-	// Output: root test
+	s1.AddCommand(s2)
+	fmt.Println(s2.CommandPath())
+	// Output: root test subtest
 }
 
 
