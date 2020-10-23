@@ -70,7 +70,6 @@ func (c *Command) execute(a []string) error {
 	if err != nil {
 		return err
 	}
-	c.Usage()
 	c.Run(c, a)
 	return nil
 }
@@ -365,8 +364,7 @@ Usage:{{if .Runnable}}
   {{.CommandPath}} [command]
 
 Available Commands:{{range .Commands}}{{if .IsAvailable}}
-  {{.Name}}: {{.ShortIntroduction}}{{end}}
-  {{end}}{{end}}{{if .HasAvailableLocalFlags}}
+  {{.Name}}: {{.ShortIntroduction}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
 LocalFlags:
   {{.LocalFlags.FlagUsages}}
 {{end}}{{if .HasAvailableGlobalFlags}}
