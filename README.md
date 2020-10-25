@@ -140,6 +140,3 @@ func init(){
 
 3. resume edu -c
 ![](https://tva1.sinaimg.cn/large/0081Kckwgy1gjz16phf6jj30su0220sv.jpg)
-
-### Example 2
-这个例子中我们将为命令行程序定义
