@@ -114,3 +114,57 @@ Use "{{.CommandPath}} [command] --help" for more information about a command.{{e
 ```
 在要输出的时候动态的将 command 对象代入模版即可输出指令的简介，例如:
 ![](https://tva1.sinaimg.cn/large/0081Kckwgy1gjzf7lo701j31bi0dyq4n.jpg)
+
+## 测试设计
+
+本次包的设计中我设计了 `utils_test.go` 和 `command_test.go` 两个单元测试文件，以及 `bench_test.go`, 一个功能测试。测试文件中包含以下几个测试:     
+
+### 1. command_test
+1. TestCommand_ParseFlags
+- 测试点: 测试从args，也就是用户输入的命令行参数到flags的转换
+
+
+2. TestCommand_GlobalFlags     
+- 测试点: 测试全局的flags解析能否在每个子命令中都访问到
+
+3. TestCommand_LocalFlags     
+- 测试点: 测试局部的flags仅能在其主人命令被使用和访问
+
+4. TestCommand_CommandPath    
+- 测试点: 测试命令能否获取自己的路径
+
+
+5. ExampleCommand_AddCommand     
+- 测试点: 展示添加命令的例子
+
+6. ExampleCommand_Execute      
+- 测试点: 展示执行命令的例子
+
+7. ExampleCommand_CommandPath
+- 测试点: 展示获取路径命令的例子
+
+
+### 2. utils_test
+1. Test_StripFlags
+- 测试点: 测试能否从参数列表中解析出定位命令的参数      
+
+2. Test_RemoveFirstMatchStr     
+- 测试点: 测试从数组中移除第一个匹配参数
+
+### 3. bench_test
+1. BenchmarkCommand_Execute
+- 测试点: 测试两层深的CLI程序执行效率    
+
+
+### 测试结果
+
+#### 单元测试
+
+执行: `go test -v`, 结果如下:    
+![](https://tva1.sinaimg.cn/large/0081Kckwgy1gk1zqhhveqj30sm0i0gpa.jpg)
+
+
+#### 性能测试
+
+执行: `go test -bench=.`，结果如下:     
+![](https://tva1.sinaimg.cn/large/0081Kckwgy1gk1zu1y25cj30t80bmjsa.jpg)

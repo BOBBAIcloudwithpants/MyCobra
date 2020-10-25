@@ -22,6 +22,8 @@ go get github.com/bobbaicloudwithpants/bobra
 
 ## 使用
 该使用示例的代码全部都可以在 [resume 仓库]("https://github.com/BOBBAIcloudwithpants/resume.git") 中获取。    
+
+### Example 1
 假设您此时要开发一款命令行的 app，通过命令行来按照需求输出您的学历以及个人信息，即:
 ```
 resume          // 显示resume的用法
@@ -139,3 +141,5 @@ func init(){
 3. resume edu -c
 ![](https://tva1.sinaimg.cn/large/0081Kckwgy1gjz16phf6jj30su0220sv.jpg)
 
+### Example 2
+这个例子中我们将为命令行程序定义

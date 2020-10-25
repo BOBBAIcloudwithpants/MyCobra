@@ -7,20 +7,18 @@ import (
 )
 
 var cmd = &Command{
-	Use: "test",
-	Short: "test",
-	Long: "test",
+	Use:     "test",
+	Short:   "test",
+	Long:    "test",
 	Example: "test",
 }
 
 var root = &Command{
-	Use: "root",
-	Short: "root",
-	Long: "root test",
+	Use:     "root",
+	Short:   "root",
+	Long:    "root test",
 	Example: "root test",
 }
-
-
 
 // 测试args到flags的转换
 func TestCommand_ParseFlags(t *testing.T) {
@@ -30,9 +28,9 @@ func TestCommand_ParseFlags(t *testing.T) {
 
 	args := []string{"-a123", "-b 10"}
 	cmd.ParseFlags(args)
-	r1,_ := cmd.Flags().GetString("aaaa")
-	r2 ,_:= cmd.Flags().GetString("ddd")
-	e1,e2 := "123", "YOUR NAME"
+	r1, _ := cmd.Flags().GetString("aaaa")
+	r2, _ := cmd.Flags().GetString("ddd")
+	e1, e2 := "123", "YOUR NAME"
 	if r1 != e1 || r2 != e2 {
 		t.Errorf("expected '%s', '%s' but got '%s', '%s'", e1, e2, r1, r2)
 	}
@@ -47,7 +45,7 @@ func TestCommand_GlobalFlags(t *testing.T) {
 	r, _ := root.GlobalFlags().GetString("global")
 	expected := "hahaha"
 	if r != expected {
-		t.Errorf("expected '%s', but got '%s'", expected,r)
+		t.Errorf("expected '%s', but got '%s'", expected, r)
 	}
 }
 
@@ -89,24 +87,25 @@ func TestCommand_CommandPath(t *testing.T) {
 	r := cmd.CommandPath()
 	expected := "root test"
 	if r != expected {
-		t.Errorf("expected '%s', but got '%s'", expected,r)
+		t.Errorf("expected '%s', but got '%s'", expected, r)
 	}
 }
 
+// 添加命令的例子
 func ExampleCommand_AddCommand() {
 	// 子命令
 	var s1 = &Command{
-		Use: "test",
-		Short: "test",
-		Long: "test",
+		Use:     "test",
+		Short:   "test",
+		Long:    "test",
 		Example: "test",
 	}
 
 	// 根命令
 	var r = &Command{
-		Use: "root",
-		Short: "root",
-		Long: "root test",
+		Use:     "root",
+		Short:   "root",
+		Long:    "root test",
 		Example: "root test",
 	}
 	r.AddCommand(s1)
@@ -117,9 +116,9 @@ func ExampleCommand_AddCommand() {
 func ExampleCommand_Execute() {
 	// 子命令
 	var s1 = &Command{
-		Use: "test",
-		Short: "test",
-		Long: "test",
+		Use:     "test",
+		Short:   "test",
+		Long:    "test",
 		Example: "test",
 		Run: func(cmd *Command, args []string) {
 			fmt.Println("i 'm the sub command")
@@ -128,9 +127,9 @@ func ExampleCommand_Execute() {
 
 	// 根命令
 	var r = &Command{
-		Use: "root",
-		Short: "root",
-		Long: "root test",
+		Use:     "root",
+		Short:   "root",
+		Long:    "root test",
 		Example: "root test",
 		Run: func(cmd *Command, args []string) {
 			fmt.Println("helloworld")
@@ -145,16 +144,16 @@ func ExampleCommand_Execute() {
 func ExampleCommand_CommandPath() {
 	// 子命令1
 	var s1 = &Command{
-		Use: "test",
-		Short: "test",
-		Long: "test",
+		Use:     "test",
+		Short:   "test",
+		Long:    "test",
 		Example: "test",
 	}
 
 	var s2 = &Command{
-		Use: "subtest",
+		Use:   "subtest",
 		Short: "subtest",
-		Long: "subtest",
+		Long:  "subtest",
 		Run: func(cmd *Command, args []string) {
 			fmt.Println("this is a test")
 		},
@@ -162,9 +161,9 @@ func ExampleCommand_CommandPath() {
 
 	// 根命令
 	var r = &Command{
-		Use: "root",
-		Short: "root",
-		Long: "root test",
+		Use:     "root",
+		Short:   "root",
+		Long:    "root test",
 		Example: "root test",
 	}
 	r.AddCommand(s1)
@@ -172,6 +171,3 @@ func ExampleCommand_CommandPath() {
 	fmt.Println(s2.CommandPath())
 	// Output: root test subtest
 }
-
-
-
